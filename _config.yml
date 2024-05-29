@@ -1,18 +1,18 @@
 # Site settings
-title: Xs-Huxblog
-SEOTitle: Xs-HuxBlog
+title: Flames's BLog
+SEOTitle: Flame blog 
 header-img: img/bg/bg_index.jpg
-email: jsksxs360@163.com
+email: haowlongtime@gmail.com
 description: ""
 keyword: ""
-url: "https://jsksxs360.github.io"              # your host, for absolute URL
-baseurl: "/xs-huxblog"                             # for example, '/blog' if your blog hosted on 'host/blog'
+url: "https://middleflames.github.io"              # your host, for absolute URL
+#baseurl: "/xs-huxblog"                             # for example, '/blog' if your blog hosted on 'host/blog'
 
 # SNS settings
-douban_username: 138483825
-weibo_username: jsksxs360
-zhihu_username: jsksxs360
-github_username: jsksxs360
+#douban_username: 138483825
+#weibo_username: jsksxs360
+#zhihu_username: jsksxs360
+#github_username: jsksxs360
 
 # Build settings
 # from 2016, 'pygments' is unsupported on GitHub Pages. Use 'rouge' for highlighting instead.
@@ -48,21 +48,10 @@ ba_track_id: 07529a93af5fa9f808261a1318c3aba4
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
-sidebar-about-description: "专注IT，乐于分享。"
+sidebar-about-description: "真理之树常青"
 sidebar-avatar: /xs-huxblog/img/avatar-xs.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 # Featured Tags
 featured-tags: true                     # whether or not using Feature-Tags
 featured-condition-size: 1              # A tag will be featured if the size of it is more than this condition value
-
-# Friends
-friends: [
-    {
-        title: "Hux Blog",
-        href: "http://huangxuan.me"
-    },
-    {
-        title: "Xs blog",
-        href: "http://xiaosheng.run"
-    }
-]
+:working_dir: dir
