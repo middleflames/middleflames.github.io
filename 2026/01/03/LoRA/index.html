@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="What is LoRA?LoRA is a Parameter-Efficient Fine-Tuning (PEFT) Method that uses low-rank approximation (LoRA) to reduce the computational cost of fine-tuning LLMs.By applying low-rank decomposition, Lo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Understanding LoRA">
+<meta property="og:url" content="http://example.com/2026/01/03/LoRA/index.html">
+<meta property="og:site_name" content="Hao&#39;s Output Layer">
+<meta property="og:description" content="What is LoRA?LoRA is a Parameter-Efficient Fine-Tuning (PEFT) Method that uses low-rank approximation (LoRA) to reduce the computational cost of fine-tuning LLMs.By applying low-rank decomposition, Lo">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-01-04T04:27:50.687Z">
+<meta property="article:modified_time" content="2026-01-04T06:44:32.670Z">
+<meta property="article:author" content="Hao Wang">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Understanding LoRA</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2026/01/03/LoRA/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2026/01/03/LoRA/&text=Understanding LoRA"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2026/01/03/LoRA/&title=Understanding LoRA"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2026/01/03/LoRA/&is_video=false&description=Understanding LoRA"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Understanding LoRA&body=Check out this article: http://example.com/2026/01/03/LoRA/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2026/01/03/LoRA/&title=Understanding LoRA"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2026/01/03/LoRA/&title=Understanding LoRA"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2026/01/03/LoRA/&title=Understanding LoRA"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2026/01/03/LoRA/&title=Understanding LoRA"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2026/01/03/LoRA/&name=Understanding LoRA&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2026/01/03/LoRA/&t=Understanding LoRA"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#What-is-LoRA"><span class="toc-number">1.</span> <span class="toc-text">What is LoRA?</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Introduction-to-LoRA"><span class="toc-number">2.</span> <span class="toc-text">Introduction to LoRA</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Key-Assumptions"><span class="toc-number">2.1.</span> <span class="toc-text">Key Assumptions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LoRA-Algorithm"><span class="toc-number">2.2.</span> <span class="toc-text">LoRA Algorithm</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#LoRA-Analysis"><span class="toc-number">3.</span> <span class="toc-text">LoRA Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Naive-Implementation"><span class="toc-number">3.1.</span> <span class="toc-text">Naive Implementation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Efficient-Implementation"><span class="toc-number">3.2.</span> <span class="toc-text">Efficient Implementation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Memory-Analysis"><span class="toc-number">3.3.</span> <span class="toc-text">Memory Analysis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Initialization-Choice"><span class="toc-number">3.4.</span> <span class="toc-text">Initialization Choice</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Understanding LoRA
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">Hao Wang</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2026-01-04T04:27:50.687Z" class="dt-published" itemprop="datePublished">2026-01-03</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h1 id="What-is-LoRA"><a href="#What-is-LoRA" class="headerlink" title="What is LoRA?"></a>What is LoRA?</h1><p>LoRA is a Parameter-Efficient Fine-Tuning (PEFT) Method that uses low-rank approximation (LoRA) to reduce the computational cost of fine-tuning LLMs.<br>By applying low-rank decomposition, LoRA fine-tunes LLMs by updating a small set of parameters, which are more memory-efficient and computationally efficient than updating all parameters (full-fine-tuning).</p>
+<h1 id="Introduction-to-LoRA"><a href="#Introduction-to-LoRA" class="headerlink" title="Introduction to LoRA"></a>Introduction to LoRA</h1><h2 id="Key-Assumptions"><a href="#Key-Assumptions" class="headerlink" title="Key Assumptions"></a>Key Assumptions</h2><p>LoRA assumes that the intrinsic dimension of the LLM for each sub-task is small, despite the fact that the number of total parameters is large.<br>Based on this assumption, LoRA uses a low-rank approximation to reduce the computational cost of fine-tuning LLMs.</p>
+<h2 id="LoRA-Algorithm"><a href="#LoRA-Algorithm" class="headerlink" title="LoRA Algorithm"></a>LoRA Algorithm</h2><p>Let $W$ be the parameter matrix of the LLM.<br>For the full-fine-tuning, the update rule is:<br>$$<br>W^{t+1} &#x3D; W^t + \Delta W,<br>$$<br>when $W\in \mathbb{R}^{d\times d}$ is a large matrix, it requires both computation and memory to do the update.</p>
+<p>As for LoRA, it uses $A\in \mathbb{R}^{d\times r}, B\in \mathbb{R}^{r\times d}$ to replace the $\Delta W$.<br>The update rule is:<br>$$<br>W^{t+1} &#x3D; W^t + AB,<br>$$<br>where $A$ and $B$ are the low-rank approximations of $\Delta W$, $r\ll \max{d,k}$.<br>In practice, $A$ is initialized with Gaussian distribution, and $B$ is initialized with zeros.</p>
+<h1 id="LoRA-Analysis"><a href="#LoRA-Analysis" class="headerlink" title="LoRA Analysis"></a>LoRA Analysis</h1><p>Naively implementing the LoRA will not save the day.</p>
+<h2 id="Naive-Implementation"><a href="#Naive-Implementation" class="headerlink" title="Naive Implementation"></a>Naive Implementation</h2><p>For the naive implementation, the update rule is:<br>$$<br>Y &#x3D; XW &#x3D; X(W_0 + AB),<br>$$<br>where $X\in \mathbb{R}^{b \times n}$ is the input matrix.</p>
+<p>We can get the gradient of $A,B$ by back-propagation.<br>$$<br>\frac{\partial L}{\partial A} &#x3D; \frac{\partial L}{\partial W}B^T,<br>\frac{\partial L}{\partial B} &#x3D; A^T\frac{\partial L}{\partial W}.<br>$$</p>
+<p>Obviously, it requires the entire $W$ to compute the gradient, which is not efficient.</p>
+<h2 id="Efficient-Implementation"><a href="#Efficient-Implementation" class="headerlink" title="Efficient Implementation"></a>Efficient Implementation</h2><p>Set the intermediate result $Z&#x3D;XA \in \mathbb{R}^{b\times r}$, we have:<br>$$<br>Y &#x3D; XW_0 + XAB &#x3D; XW_0 + ZB.<br>$$<br>Now the gradient is:<br>$$<br>\frac{\partial L}{\partial A} &#x3D; X^T\frac{\partial L}{\partial Z},<br>\frac{\partial L}{\partial B} &#x3D; Z^T\frac{\partial L}{\partial Y}.<br>$$</p>
+<p>Now it will save the memory and computation cost.</p>
+<h2 id="Memory-Analysis"><a href="#Memory-Analysis" class="headerlink" title="Memory Analysis"></a>Memory Analysis</h2><p>For the backbone model, it saves the memory cost, especially the first-order and second-order gradients for optimizers like Adam.<br>Additionally, the backbone model can be quantized into INT8 or even INT4 as it does not require updates.</p>
+<p>LoRA also saves the communication cost across GPUs.</p>
+<h2 id="Initialization-Choice"><a href="#Initialization-Choice" class="headerlink" title="Initialization Choice"></a>Initialization Choice</h2><p>One of the frequently asked question is how to initialize $A,B$.</p>
+<p>Let us think about this step by step.</p>
+<ul>
+<li>First, can’t initialize both matrices with 0. Because this will lead to 0 gradients.</li>
+<li>Second, can’t initialize both $A,B$ with Gaussian distribution. Because this may lead to high $\Delta W$, resulting deviation from the pre-trained model at the very first step.</li>
+<li>Third, with $A$ initialized with Gaussian distribution, the $B$ can be initialized with zeros. $B$ can still get gradients while the initial $\Delta W$ is 0 at the beginning.</li>
+<li>Finally, there is no rules that $B$ cant be initialized with Gaussian distribution as $A$ to be zeros. Some paper claims that $A$ to be Gaussian distribution is better but there is no guarantee.</li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#What-is-LoRA"><span class="toc-number">1.</span> <span class="toc-text">What is LoRA?</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Introduction-to-LoRA"><span class="toc-number">2.</span> <span class="toc-text">Introduction to LoRA</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Key-Assumptions"><span class="toc-number">2.1.</span> <span class="toc-text">Key Assumptions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LoRA-Algorithm"><span class="toc-number">2.2.</span> <span class="toc-text">LoRA Algorithm</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#LoRA-Analysis"><span class="toc-number">3.</span> <span class="toc-text">LoRA Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Naive-Implementation"><span class="toc-number">3.1.</span> <span class="toc-text">Naive Implementation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Efficient-Implementation"><span class="toc-number">3.2.</span> <span class="toc-text">Efficient Implementation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Memory-Analysis"><span class="toc-number">3.3.</span> <span class="toc-text">Memory Analysis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Initialization-Choice"><span class="toc-number">3.4.</span> <span class="toc-text">Initialization Choice</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2026/01/03/LoRA/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2026/01/03/LoRA/&text=Understanding LoRA"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2026/01/03/LoRA/&title=Understanding LoRA"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2026/01/03/LoRA/&is_video=false&description=Understanding LoRA"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Understanding LoRA&body=Check out this article: http://example.com/2026/01/03/LoRA/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2026/01/03/LoRA/&title=Understanding LoRA"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2026/01/03/LoRA/&title=Understanding LoRA"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2026/01/03/LoRA/&title=Understanding LoRA"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2026/01/03/LoRA/&title=Understanding LoRA"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2026/01/03/LoRA/&name=Understanding LoRA&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2026/01/03/LoRA/&t=Understanding LoRA"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2026
+    Hao Wang
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
