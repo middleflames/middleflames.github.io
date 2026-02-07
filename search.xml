@@ -5,12 +5,37 @@
     
     <entry>
       <title>Understanding LoRA</title>
-      <link href="/2026/01/03/LoRA/"/>
-      <url>/2026/01/03/LoRA/</url>
+      <link href="/2026/02/06/LoRA/"/>
+      <url>/2026/02/06/LoRA/</url>
       
         <content type="html"><![CDATA[<h1 id="What-is-LoRA"><a href="#What-is-LoRA" class="headerlink" title="What is LoRA?"></a>What is LoRA?</h1><p>LoRA is a Parameter-Efficient Fine-Tuning (PEFT) Method that uses low-rank approximation (LoRA) to reduce the computational cost of fine-tuning LLMs.<br>By applying low-rank decomposition, LoRA fine-tunes LLMs by updating a small set of parameters, which are more memory-efficient and computationally efficient than updating all parameters (full-fine-tuning).</p><h1 id="Introduction-to-LoRA"><a href="#Introduction-to-LoRA" class="headerlink" title="Introduction to LoRA"></a>Introduction to LoRA</h1><h2 id="Key-Assumptions"><a href="#Key-Assumptions" class="headerlink" title="Key Assumptions"></a>Key Assumptions</h2><p>LoRA assumes that the intrinsic dimension of the LLM for each sub-task is small, despite the fact that the number of total parameters is large.<br>Based on this assumption, LoRA uses a low-rank approximation to reduce the computational cost of fine-tuning LLMs.</p><h2 id="LoRA-Algorithm"><a href="#LoRA-Algorithm" class="headerlink" title="LoRA Algorithm"></a>LoRA Algorithm</h2><p>Let $W$ be the parameter matrix of the LLM.<br>For the full-fine-tuning, the update rule is:<br>$$<br>W^{t+1} &#x3D; W^t + \Delta W,<br>$$<br>when $W\in \mathbb{R}^{d\times d}$ is a large matrix, it requires both computation and memory to do the update.</p><p>As for LoRA, it uses $A\in \mathbb{R}^{d\times r}, B\in \mathbb{R}^{r\times d}$ to replace the $\Delta W$.<br>The update rule is:<br>$$<br>W^{t+1} &#x3D; W^t + AB,<br>$$<br>where $A$ and $B$ are the low-rank approximations of $\Delta W$, $r\ll \max{d,k}$.<br>In practice, $A$ is initialized with Gaussian distribution, and $B$ is initialized with zeros.</p><h1 id="LoRA-Analysis"><a href="#LoRA-Analysis" class="headerlink" title="LoRA Analysis"></a>LoRA Analysis</h1><p>Naively implementing the LoRA will not save the day.</p><h2 id="Naive-Implementation"><a href="#Naive-Implementation" class="headerlink" title="Naive Implementation"></a>Naive Implementation</h2><p>For the naive implementation, the update rule is:<br>$$<br>Y &#x3D; XW &#x3D; X(W_0 + AB),<br>$$<br>where $X\in \mathbb{R}^{b \times n}$ is the input matrix.</p><p>We can get the gradient of $A,B$ by back-propagation.<br>$$<br>\frac{\partial L}{\partial A} &#x3D; \frac{\partial L}{\partial W}B^T,<br>\frac{\partial L}{\partial B} &#x3D; A^T\frac{\partial L}{\partial W}.<br>$$</p><p>Obviously, it requires the entire $W$ to compute the gradient, which is not efficient.</p><h2 id="Efficient-Implementation"><a href="#Efficient-Implementation" class="headerlink" title="Efficient Implementation"></a>Efficient Implementation</h2><p>Set the intermediate result $Z&#x3D;XA \in \mathbb{R}^{b\times r}$, we have:<br>$$<br>Y &#x3D; XW_0 + XAB &#x3D; XW_0 + ZB.<br>$$<br>Now the gradient is:<br>$$<br>\frac{\partial L}{\partial A} &#x3D; X^T\frac{\partial L}{\partial Z},<br>\frac{\partial L}{\partial B} &#x3D; Z^T\frac{\partial L}{\partial Y}.<br>$$</p><p>Now it will save the memory and computation cost.</p><h2 id="Memory-Analysis"><a href="#Memory-Analysis" class="headerlink" title="Memory Analysis"></a>Memory Analysis</h2><p>For the backbone model, it saves the memory cost, especially the first-order and second-order gradients for optimizers like Adam.<br>Additionally, the backbone model can be quantized into INT8 or even INT4 as it does not require updates.</p><p>LoRA also saves the communication cost across GPUs.</p><h2 id="Initialization-Choice"><a href="#Initialization-Choice" class="headerlink" title="Initialization Choice"></a>Initialization Choice</h2><p>One of the frequently asked question is how to initialize $A,B$.</p><p>Let us think about this step by step.</p><ul><li>First, can’t initialize both matrices with 0. Because this will lead to 0 gradients.</li><li>Second, can’t initialize both $A,B$ with Gaussian distribution. Because this may lead to high $\Delta W$, resulting deviation from the pre-trained model at the very first step.</li><li>Third, with $A$ initialized with Gaussian distribution, the $B$ can be initialized with zeros. $B$ can still get gradients while the initial $\Delta W$ is 0 at the beginning.</li><li>Finally, there is no rules that $B$ cant be initialized with Gaussian distribution as $A$ to be zeros. Some paper claims that $A$ to be Gaussian distribution is better but there is no guarantee.</li></ul>]]></content>
       
       
+      
+        <tags>
+            
+            <tag> LLM </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Harmonic Mean</title>
+      <link href="/2026/02/06/Mean/"/>
+      <url>/2026/02/06/Mean/</url>
+      
+        <content type="html"><![CDATA[<h1 id="Definition"><a href="#Definition" class="headerlink" title="Definition"></a>Definition</h1><p>The harmonic mean $H$ of the positive real numbers $x_1,x_2,\dots x_n$ is<br>$$<br>H(x_1,x_2,\dots x_n)&#x3D;\frac{n}{\frac{1}{x_1}+\frac{1}{x_2}\dots}&#x3D;\frac{n}{\sum_{i&#x3D;1}^n\frac{1}{x_i}}<br>$$</p><h1 id="Property"><a href="#Property" class="headerlink" title="Property"></a>Property</h1><p>The harmonic mean is greater than or equal to the minimum of its arguments (positive arguments)<br>$$<br>\min(x_1,x_2,\dots x_n) \leq H(x_1,x_2,\dots x_n) \leq n\min(x_1,x_2,\dots x_n)<br>$$<br>The harmonic mean cannot be made arbitrarily large by changing some values to bigger ones.</p><h2 id="Proof"><a href="#Proof" class="headerlink" title="Proof"></a>Proof</h2><p>Let $m&#x3D;\min(x_1,x_2,\dots x_n)$,  we have<br>$$<br>\frac{1}{x_i} \leq \frac{1}{m}<br>$$<br>Sum from 1 to $n$, we have<br>$$<br>\sum_{i&#x3D;1}^n\frac{1}{x_i} \leq \frac{n}{m}<br>$$<br>Take the reciprocal and multiply by n,<br>$$<br>H &#x3D; \frac{n}{\sum_{i&#x3D;1}^n\frac{1}{x_i}} \geq m<br>$$<br>Thus we get $\min(x_1,x_2,\dots x_n) \leq H(x_1,x_2,\dots x_n)$<br>For the upper bound, $x_i \geq m$, at least one $x_j &#x3D; m$, then<br>$$<br>\sum_{i&#x3D;1}^n\frac{1}{x_i} \geq \frac{1}{m}<br>$$<br>Take the reciprocal and multiply by n, we have<br>$$<br>H &#x3D; \frac{n}{\sum_{i&#x3D;1}^n\frac{1}{x_i}} \leq nm.<br>$$<br>That is<br>$$<br>H(x_1,x_2,\dots x_n) \leq n\min(x_1,x_2,\dots x_n)<br>$$<br>$$\tag*{$\blacksquare$}$$</p><h1 id="Insight"><a href="#Insight" class="headerlink" title="Insight"></a>Insight</h1><p>The key difference between harmonic mean and  arithmetic  mean is how it reacts with the extreme small value (see above property). It is bound to the smallest values which will reject compensation from other values. </p><p>Take the F1 score in machine learning, which is defined as the harmonic mean between precision and recall as an example, given an extreme case, $P&#x3D;1.0, R&#x3D;0.1$<br>Using the arithmetic mean we get<br>$$<br>\frac{P+R}{2} &#x3D; 0.55<br>$$<br>While the harmonic mean is<br>$$<br>H(P,R) &#x3D; \frac{2}{\frac{1}{P}+\frac{1}{R}} &#x3D;  0.18<br>$$<br>Above shows that the harmonic mean will not be large simply because the precision is high enough.</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> Math </tag>
+            
+        </tags>
       
     </entry>
     
