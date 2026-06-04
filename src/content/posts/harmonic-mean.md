@@ -62,11 +62,7 @@ $$
 That is
 
 $$
-H(x_1,x_2,\dots x_n) \leq n\min(x_1,x_2,\dots x_n)
-$$
-
-$$
-\blacksquare
+H(x_1,x_2,\dots x_n) \leq n\min(x_1,x_2,\dots x_n)\tag*{\rule{0.7em}{0.7em}}
 $$
 
 # Insight
