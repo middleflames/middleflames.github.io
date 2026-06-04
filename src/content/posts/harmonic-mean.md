@@ -65,7 +65,9 @@ $$
 H(x_1,x_2,\dots x_n) \leq n\min(x_1,x_2,\dots x_n)
 $$
 
-$$\tag*{$\blacksquare$}$$
+$$
+\blacksquare
+$$
 
 # Insight
 
