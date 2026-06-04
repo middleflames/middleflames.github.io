@@ -28,7 +28,14 @@ export default defineAstroPaperConfig({
     },
     search: "pagefind",
   },
-  socials: [{ name: "github", url: "https://github.com/middleflames" }],
+  socials: [
+    { name: "github", url: "https://github.com/middleflames" },
+    {
+      name: "linkedin",
+      url: "https://www.linkedin.com/in/hao-wang-0297b7273/",
+      linkTitle: "Hao Wang on LinkedIn",
+    },
+  ],
   shareLinks: [
     { name: "whatsapp", url: "https://wa.me/?text=" },
     { name: "facebook", url: "https://www.facebook.com/sharer.php?u=" },
