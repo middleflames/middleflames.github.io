@@ -1,15 +1,15 @@
 ---
 author: Hao Wang
 pubDatetime: 2026-07-10T16:40:13-04:00
-modDatetime: 2026-07-10T22:47:15-04:00
-title: Find the Distance Value Between Two Arrays
+modDatetime: 2026-07-10T22:59:47-04:00
+title: "LeetCode-1385: Find the Distance Value Between Two Arrays"
 tags:
   - Algorithm
   - LeetCode
 description: Two ways to solve LeetCode 1385 using binary search or two pointers, with boundary reasoning and complexity analysis.
 ---
 
-# Find the Distance Value Between Two Arrays
+# LeetCode-1385: Find the Distance Value Between Two Arrays
 
 ## Description
 
@@ -39,6 +39,8 @@ For arr1[2]=8 we have:
 |8-8|=0 <= d=2
 
 ## Approach 1: Binary Search
+
+This approach uses the lower-bound pattern described in [Understanding Binary Search](/posts/binary-search/).
 
 For each value $x$ in `arr1`, the forbidden interval in `arr2` is:
 
