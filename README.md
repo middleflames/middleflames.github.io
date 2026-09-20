@@ -13,6 +13,21 @@ npm run new-post -- "My New Post" --tags "LLM,Math" --description "Short summary
 
 Content lives in `src/content/posts` and `src/content/pages`.
 
+## Comments and visitor counts
+
+Posts use [Utterances](https://utteranc.es/) for comments stored in GitHub Issues.
+To enable posting, turn on Issues for `middleflames/middleflames.github.io` and
+[install the Utterances GitHub app](https://github.com/apps/utterances) for that
+repository. Readers need a GitHub account to comment. The widget follows the
+blog's light and dark theme.
+
+The footer shows unique visitors and each post shows page views using
+[Busuanzi](https://www.busuanzi.cc/doc.php). Counts are requested only on the
+published `middleflames.github.io` site, including navigation between pages;
+local previews do not change them. Busuanzi receives the visited URL and
+referrer, and handles visitor identification. Counts start accumulating after
+the updated site is published.
+
 ## Writing a Post
 
 Create a post with:

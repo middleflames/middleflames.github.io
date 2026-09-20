@@ -1,0 +1,60 @@
+---
+const repo = "middleflames/middleflames.github.io";
+---
+
+<section
+  id="comments"
+  class="my-8"
+  aria-labelledby="comments-heading"
+  data-pagefind-ignore
+>
+  <h2 id="comments-heading" class="mb-2 text-xl font-semibold">Comments</h2>
+  <p class="text-muted-foreground mb-4 text-sm">
+    Sign in with GitHub to join the discussion. Comments are stored as
+    <a
+      class="text-accent underline decoration-dashed underline-offset-4"
+      href={`https://github.com/${repo}/issues`}
+      target="_blank"
+      rel="noopener noreferrer">GitHub Issues</a
+    >.
+  </p>
+  <div id="comments-widget" data-repo={repo}></div>
+</section>
+
+<script>
+  function commentTheme(): string {
+    return document.documentElement.getAttribute("data-theme") === "dark"
+      ? "github-dark"
+      : "github-light";
+  }
+
+  function loadComments(): void {
+    const container = document.querySelector<HTMLElement>("#comments-widget");
+    if (!container || container.childElementCount > 0) return;
+
+    const script = document.createElement("script");
+    script.src = "https://utteranc.es/client.js";
+    script.async = true;
+    script.crossOrigin = "anonymous";
+    script.setAttribute("repo", container.dataset.repo ?? "");
+    script.setAttribute("issue-term", "pathname");
+    script.setAttribute("theme", commentTheme());
+    container.appendChild(script);
+  }
+
+  loadComments();
+  document.addEventListener("astro:page-load", loadComments);
+
+  new MutationObserver(() => {
+    const frame = document.querySelector<HTMLIFrameElement>(
+      "#comments-widget iframe.utterances-frame"
+    );
+    frame?.contentWindow?.postMessage(
+      { type: "set-theme", theme: commentTheme() },
+      "https://utteranc.es"
+    );
+  }).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+</script>
