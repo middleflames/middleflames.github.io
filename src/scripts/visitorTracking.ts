@@ -23,10 +23,18 @@ async function countVisit(): Promise<void> {
     const counts = (await response.json()) as Counts;
     if (location.href !== pageUrl) return;
 
-    for (const id of ["busuanzi_site_uv", "busuanzi_page_pv"]) {
+    for (const id of [
+      "busuanzi_site_uv",
+      "busuanzi_site_pv",
+      "busuanzi_page_pv",
+    ]) {
       const value = counts[id];
       if (typeof value !== "string" && typeof value !== "number") continue;
-      document.getElementById(id)?.replaceChildren(String(value));
+      document
+        .querySelectorAll(`[data-visitor-count="${id}"]`)
+        .forEach(element => {
+          element.replaceChildren(String(value));
+        });
     }
   } catch {
     // Leave the placeholder when the external counter is unavailable.
