@@ -32,7 +32,9 @@ The footer also shows an approximate visitor location map from
 [FeedPulse](https://feed-pulse.com/free-visitor-globe-widget). The map uses a
 site-specific ID and starts collecting locations after publication. Its live
 activity may differ from the all-time Busuanzi totals because the services use
-different counting methods. The map script is included only in production builds.
+different counting methods. The map includes only visits from the last 24 hours
+whose locations FeedPulse can resolve; visits with unknown locations are not
+plotted. The map script is included only in production builds.
 
 ## Writing a Post
 
