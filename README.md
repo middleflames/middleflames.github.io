@@ -28,14 +28,13 @@ local previews do not change them. Busuanzi receives the visited URL and
 referrer, and handles visitor identification. Counts start accumulating after
 the updated site is published.
 
-The Visitors page also shows an approximate visitor location map from
-[FeedPulse](https://feed-pulse.com/free-visitor-globe-widget). The map uses a
-site-specific ID and starts collecting locations after publication. Its live
-activity may differ from the all-time Busuanzi totals because the services use
-different counting methods. The map includes only visits from the last 24 hours
-whose locations FeedPulse can resolve; visits with unknown locations are not
-plotted. FeedPulse records visits on the published site across all pages; the map
-itself appears only on the Visitors page.
+The Visitors page shows a cumulative country map using the all-time counts from
+[FeedPulse](https://feed-pulse.com/). FeedPulse records visits across published
+pages. Only visits with a known country color the map; unknown locations remain
+in the country list. The FeedPulse visit counts can differ from Busuanzi's
+unique-visitor and page-view totals because the services count differently.
+Country outlines come from the public-domain [Natural Earth](https://www.naturalearthdata.com/)
+dataset. Regenerate the optimized SVG with `python3 scripts/generate-visitor-map.py`.
 
 ## Writing a Post
 
