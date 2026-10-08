@@ -21,20 +21,21 @@ To enable posting, turn on Issues for `middleflames/middleflames.github.io` and
 repository. Readers need a GitHub account to comment. The widget follows the
 blog's light and dark theme.
 
-The footer shows unique visitors and total page views, and each post shows page views using
+The Visitors page shows unique visitors and total page views, and each post shows page views using
 [Busuanzi](https://www.busuanzi.cc/doc.php). Counts are requested only on the
 published `middleflames.github.io` site, including navigation between pages;
 local previews do not change them. Busuanzi receives the visited URL and
 referrer, and handles visitor identification. Counts start accumulating after
 the updated site is published.
 
-The footer also shows an approximate visitor location map from
+The Visitors page also shows an approximate visitor location map from
 [FeedPulse](https://feed-pulse.com/free-visitor-globe-widget). The map uses a
 site-specific ID and starts collecting locations after publication. Its live
 activity may differ from the all-time Busuanzi totals because the services use
 different counting methods. The map includes only visits from the last 24 hours
 whose locations FeedPulse can resolve; visits with unknown locations are not
-plotted. The map script is included only in production builds.
+plotted. FeedPulse records visits on the published site across all pages; the map
+itself appears only on the Visitors page.
 
 ## Writing a Post
 

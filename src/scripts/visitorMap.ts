@@ -1,5 +1,5 @@
 const siteId = "f9c18aeb-0402-497d-9ae5-7b826837021c";
-const mapScriptUrl = `https://feed-pulse.com/api/embed/visitor-globe.js?site_id=${siteId}&map=globe&sz=md&theme=obsidian&speed=normal`;
+let themeObserver: MutationObserver | undefined;
 
 function getSessionId(): string {
   const key = "visitor-map-session";
@@ -39,18 +39,32 @@ async function recordVisit(): Promise<void> {
   }
 }
 
-document.addEventListener("astro:page-load", async () => {
-  const map = document.querySelector<HTMLElement>("[data-visitor-map]");
-  if (!map || map.querySelector("script")) return;
+document.addEventListener("astro:page-load", () => {
+  // Continue recording sitewide visits even though the map has its own page.
+  void recordVisit();
 
-  await recordVisit();
-  if (!map.isConnected) return;
+  themeObserver?.disconnect();
+  const map = document.querySelector<HTMLIFrameElement>("[data-visitor-map]");
+  const frameUrl = map?.dataset.frameUrl;
+  if (!map || !frameUrl) return;
+  const frame = map;
+  const sourceUrl = frameUrl;
 
-  const script = document.createElement("script");
-  script.src = mapScriptUrl;
-  script.async = true;
-  script.onerror = () => {
-    map.replaceChildren("The visitor map is unavailable right now.");
-  };
-  map.append(script);
+  function updateMapTheme(): void {
+    const theme =
+      document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+    if (frame.dataset.theme === theme) return;
+
+    const url = new URL(sourceUrl, location.href);
+    url.searchParams.set("theme", theme);
+    frame.src = url.href;
+    frame.dataset.theme = theme;
+  }
+
+  updateMapTheme();
+  themeObserver = new MutationObserver(updateMapTheme);
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
 });

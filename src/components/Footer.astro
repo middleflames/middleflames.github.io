@@ -17,59 +17,6 @@ const currentYear = new Date().getFullYear();
   class:list={["app-layout", { "mt-auto": !noMarginTop }, className]}
   {...attrs}
 >
-  <section
-    aria-labelledby="visitor-map-heading"
-    class="border-border grid gap-6 border-t py-8 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] sm:items-center"
-  >
-    <div>
-      <h2 id="visitor-map-heading" class="text-xl font-semibold">
-        Visitor map
-      </h2>
-      <p class="text-muted-foreground mt-2 text-sm">
-        The globe shows visits from the last 24 hours when their approximate
-        location is available. The totals below cover all time.
-      </p>
-      <dl class="mt-5 flex gap-8">
-        <div>
-          <dt class="text-muted-foreground text-sm">All-time visitors</dt>
-          <dd
-            class="text-accent text-2xl font-semibold tabular-nums"
-            data-visitor-count="busuanzi_site_uv"
-          >
-            —
-          </dd>
-        </div>
-        <div>
-          <dt class="text-muted-foreground text-sm">All-time page views</dt>
-          <dd
-            class="text-accent text-2xl font-semibold tabular-nums"
-            data-visitor-count="busuanzi_site_pv"
-          >
-            —
-          </dd>
-        </div>
-      </dl>
-    </div>
-    <div
-      class="flex min-h-52 items-center justify-center overflow-hidden rounded border bg-[#1e293b] p-3"
-    >
-      {
-        import.meta.env.PROD ? (
-          <div class="visitor-map-widget text-center" data-visitor-map>
-            <noscript>
-              <a href="https://feed-pulse.com/free-visitor-globe-widget">
-                About the visitor map
-              </a>
-            </noscript>
-          </div>
-        ) : (
-          <p class="text-sm text-slate-200">
-            The live visitor map appears on the published site.
-          </p>
-        )
-      }
-    </div>
-  </section>
   <div
     class="border-border flex flex-col items-center justify-between border-t py-6 sm:flex-row-reverse sm:py-4"
   >
@@ -81,19 +28,3 @@ const currentYear = new Date().getFullYear();
     </div>
   </div>
 </footer>
-
-<style>
-  .visitor-map-widget {
-    max-width: 100%;
-  }
-
-  .visitor-map-widget :global([data-fp-globe]) {
-    max-width: 100%;
-    color: #e2e8f0 !important;
-  }
-
-  .visitor-map-widget :global(canvas) {
-    max-width: 100%;
-    height: auto !important;
-  }
-</style>
