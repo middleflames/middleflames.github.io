@@ -134,7 +134,7 @@ Substituting into Equation (5) gives the REINFORCE gradient.
 
 $$
 \nabla_\theta J(\pi_\theta)
-= \mathbb{E}_{\tau\sim p_\theta}\left[
+= \mathbb{E}_{\tau\sim \pi_\theta}\left[
 G(\tau)\sum_{t=1}^{H}\nabla_\theta\log\pi_\theta(a_t\mid s_t)
 \right].
 \tag{7}
