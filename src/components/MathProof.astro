@@ -1,0 +1,35 @@
+<div class="math-proof" role="group" aria-label="Proof">
+  <p class="proof-label" aria-hidden="true">Proof</p>
+  <slot />
+  <p class="proof-end" aria-hidden="true">■</p>
+</div>
+
+<style>
+  .math-proof {
+    margin-block-start: 1rem;
+    padding: 0.875rem var(--math-inset, 1rem) 0.75rem;
+    border-block-start: 1px solid var(--math-border, var(--border));
+    border-end-start-radius: var(--math-radius, 0);
+    border-end-end-radius: var(--math-radius, 0);
+    background: var(--background);
+  }
+
+  .math-proof > .proof-label {
+    margin-block: 0 0.25rem;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+    font-weight: 650;
+  }
+
+  .proof-label + :global(p),
+  .proof-label + :global(.katex-display) {
+    margin-block-start: 0.25rem;
+  }
+
+  .math-proof > .proof-end {
+    margin-block: 0.5rem 0;
+    text-align: end;
+    font-size: 0.75rem;
+    line-height: 1;
+  }
+</style>

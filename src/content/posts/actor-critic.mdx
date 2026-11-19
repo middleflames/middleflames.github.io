@@ -8,6 +8,9 @@ tags:
 description: From the bias and variance of REINFORCE to reward-to-go, baseline functions, and Actor-Critic.
 ---
 
+import MathStatement from "../../components/MathStatement.astro";
+import MathProof from "../../components/MathProof.astro";
+
 This is the follow-up blog to [REINFORCE](/posts/understanding-reinforce/) to continue exploring the Actor-Critic method.
 
 ## Preliminary
@@ -24,8 +27,11 @@ $$
 
 #### Properties
 
-**Lemma 1** $\mathbb{E}[\mathbb{E}[A|B]]=\mathbb{E}[A]$.
-Proof:
+<MathStatement label="Lemma 1">
+
+$\mathbb{E}[\mathbb{E}[A|B]]=\mathbb{E}[A]$.
+
+<MathProof>
 
 $$
 \begin{aligned}
@@ -38,11 +44,17 @@ $$
 \end{aligned}
 $$
 
+</MathProof>
+
+</MathStatement>
+
+<MathStatement label="Lemma 2">
+
 $$
-\tag*{$\blacksquare$}
+\mathbb{E}_{A,B}\left[f(A,B)\right] = \mathbb{E}_A \left[ \mathbb{E}_B \left[f(A,B)|A \right] \right]
 $$
 
-**Lemma 2** $\mathbb{E}_{A,B}\left[f(A,B)\right] = \mathbb{E}_A \left[ \mathbb{E}_B \left[f(A,B)|A \right] \right]$
+<MathProof>
 
 $$
 \begin{aligned}
@@ -55,11 +67,15 @@ $$
 \end{aligned}.
 $$
 
-$$
-\tag*{$\blacksquare$}
-$$
+</MathProof>
 
-**Lemma 3** $\mathbb E[f(Y)X\mid Y] = f(Y)\mathbb E[X\mid Y]$.
+</MathStatement>
+
+<MathStatement label="Lemma 3">
+
+$\mathbb E[f(Y)X\mid Y] = f(Y)\mathbb E[X\mid Y]$.
+
+</MathStatement>
 
 ## Bias-Variance Tradeoff of REINFORCE
 
@@ -71,8 +87,13 @@ $$
 
 When we use Monte-Carlo (sampling real trajectories) to estimate this expectation, it is an unbiased estimation as there is no systematic guess about system. However, the consequence of Monte-Carlo is high-variance, despite the constraint of discount factor $\gamma$.
 
-**Proposition 1** The REINFORCE algorithm provides an unbiased estimator of the policy gradient $\nabla_{\theta} J(\pi_{\theta})$.
-Proof: For $N$ independently sampled trajectories $\{\tau_i\}_{i=1}^N$, the Monte-Carlo estimator is
+<MathStatement label="Proposition 1">
+
+The REINFORCE algorithm provides an unbiased estimator of the policy gradient $\nabla_{\theta} J(\pi_{\theta})$.
+
+<MathProof>
+
+For $N$ independently sampled trajectories $\{\tau_i\}_{i=1}^N$, the Monte-Carlo estimator is
 
 $$
  \widehat{g}_N = \frac{1}{N} \sum_{i=1}^{N} \left[ \left( \sum_{t=1}^{H} \nabla_\theta\log\pi_\theta(a_t^{(i)}\mid s_t^{(i)}) \right) \left( \sum_{t=1}^{H}\gamma^{t-1}r_t^{(i)} \right) \right].
@@ -86,9 +107,9 @@ $$
 
 Therefore, the REINFORCE estimator is unbiased.
 
-$$
-\tag*{$\blacksquare$}
-$$
+</MathProof>
+
+</MathStatement>
 
 For the single-trajectory gradient estimator, we denote
 
@@ -117,8 +138,13 @@ From above, we could observe that the variance is dependent on two factors:
 
 Recall the reward term in Eq. (1), for each action $a_t$, it has to multiply the whole reward sequence from $t=1$ to $H$. However, the action at time $t$ should only affect rewards from $t$ onward. If we could remove the reward before $t$, without paying the price for estimation of the expectation, we could reduce the variance.
 
-**Proposition 2** $\forall t: \mathbb{E}_\pi \left[ \left( \nabla_\theta\log\pi_\theta(a_t\mid s_t) \right) \left( \sum_{t^\prime=1}^{t-1}\gamma^{t^\prime-1}r_{t^\prime} \right) \right] = 0$
-Proof:
+<MathStatement label="Proposition 2">
+
+$$
+\forall t: \mathbb{E}_\pi \left[ \left( \nabla_\theta\log\pi_\theta(a_t\mid s_t) \right) \left( \sum_{t^\prime=1}^{t-1}\gamma^{t^\prime-1}r_{t^\prime} \right) \right] = 0
+$$
+
+<MathProof>
 
 $$
 \begin{aligned}
@@ -161,9 +187,9 @@ $$
 \forall t: \mathbb{E}_\pi \left[ \left( \nabla_\theta\log\pi_\theta(a_t\mid s_t) \right) \left( \sum_{t^\prime=1}^{t-1}\gamma^{t^\prime-1}r_{t^\prime} \right) \right] = 0
 $$
 
-$$
-\tag*{$\blacksquare$}
-$$
+</MathProof>
+
+</MathStatement>
 
 Split the reward in Eq. (1), we get
 
