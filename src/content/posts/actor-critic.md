@@ -1,0 +1,262 @@
+---
+author: Hao Wang
+pubDatetime: 2026-11-19T00:00:00-05:00
+title: "Policy Gradient Series: From REINFORCE to Actor-Critic"
+tags:
+  - Reinforcement Learning
+  - Policy Gradient
+description: From the bias and variance of REINFORCE to reward-to-go, baseline functions, and Actor-Critic.
+---
+
+This is the follow-up blog to [REINFORCE](/posts/understanding-reinforce/) to continue exploring the Actor-Critic method.
+
+## Preliminary
+
+### Conditional Expectation
+
+#### Definition
+
+Let $A,B$ be two r.v.s. The conditional expectation is defined as
+
+$$
+\mathbb{E}\left[B|A\right]=\int_B b \cdot p(b|a).
+$$
+
+#### Properties
+
+**Lemma 1** $\mathbb{E}[\mathbb{E}[A|B]]=\mathbb{E}[A]$.
+Proof:
+
+$$
+\begin{align}
+\mathbb{E}[\mathbb{E}[A|B]] &= \int_B P(B)\int_A a \cdot P(A|B) \\
+&= \int_B\int_A a\cdot P(A|B) P(B) \\
+&= \int_B \int_A a \cdot P(A,B) \\
+&= \int_Aa\int_B P(A,B) \\
+&= \int_Aa\cdot P(A) \\
+&= \mathbb{E}[A].
+\end{align}
+$$
+
+$$
+\tag*{$\blacksquare$}
+$$
+
+**Lemma 2** $\mathbb{E}_{A,B}\left[f(A,B)\right] = \mathbb{E}_A \left[ \mathbb{E}_B \left[f(A,B)|A \right] \right]$
+
+$$
+\begin{aligned}
+\mathbb{E}_{A,B}[f(A,B)]
+&= \int_{A,B} P(A,B)f(A,B) \\
+&= \int_A \int_B P(B\mid A)P(A)f(A,B) \\
+&= \int_A P(A)\int_B P(B\mid A)f(A,B) \\
+&= \int_A P(A)\mathbb{E}_B[f(A,B)\mid A] \\
+&= \mathbb{E}_A\left[\mathbb{E}_B[f(A,B)\mid A]\right].
+\end{aligned}.
+$$
+
+$$
+\tag*{$\blacksquare$}
+$$
+
+**Lemma 3** $\mathbb E[f(Y)X\mid Y] = f(Y)\mathbb E[X\mid Y]$.
+
+## Bias-Variance Tradeoff of REINFORCE
+
+Recall the REINFORCE algorithm:
+
+$$
+\nabla_{\theta} J(\pi_{\theta}) = \mathbb{E}_{\pi} \left[ \left( \sum_{t=1}^{H} \nabla_{\theta} \log \pi_{\theta}(a_t \mid s_t) \right) \left( \sum_{t=1}^{H} \gamma^{t-1} r_t \right) \right]. \tag{1}
+$$
+
+When we use Monte-Carlo (sampling real trajectories) to estimate this expectation, it is an unbiased estimation as there is no systematic guess about system. However, the consequence of Monte-Carlo is high-variance, despite the constraint of discount factor $\gamma$.
+
+**Proposition 1** The REINFORCE algorithm provides an unbiased estimator of the policy gradient $\nabla_{\theta} J(\pi_{\theta})$.
+Proof: For $N$ independently sampled trajectories $\{\tau_i\}_{i=1}^N$, the Monte-Carlo estimator is
+
+$$
+ \widehat{g}_N = \frac{1}{N} \sum_{i=1}^{N} \left[ \left( \sum_{t=1}^{H} \nabla_\theta\log\pi_\theta(a_t^{(i)}\mid s_t^{(i)}) \right) \left( \sum_{t=1}^{H}\gamma^{t-1}r_t^{(i)} \right) \right].
+$$
+
+By the linearity of expectation,
+
+$$
+ \begin{aligned} \mathbb{E}[\widehat{g}_N] &=\frac{1}{N}\sum_{i=1}^{N}\nabla_\theta J(\pi_\theta)\\ &=\nabla_\theta J(\pi_\theta). \end{aligned}
+$$
+
+Therefore, the REINFORCE estimator is unbiased.
+
+$$
+\tag*{$\blacksquare$}
+$$
+
+For the single-trajectory gradient estimator, we denote
+
+$$
+ \hat{g}(\tau) = \underbrace{\left(\sum_{t=1}^{H}\nabla_{\theta}\log\pi_{\theta}(a_t\mid s_t)\right)}_{S(\tau)} \underbrace{\left(\sum_{t=1}^{H}\gamma^{t-1}r_t\right)}_{R(\tau)}.
+$$
+
+Since the trajectories are independent,
+
+$$
+ \operatorname{Var}[\hat g_N] = \frac{1}{N}\operatorname{Var}[\hat g].
+$$
+
+Therefore,
+
+$$
+ \operatorname{Var}[\hat g_N] = \frac{1}{N} \left[ \mathbb E_{\tau\sim\pi_\theta} \left[ R(\tau)^2\|S(\tau)\|_2^2 \right] - \|\nabla_\theta J(\pi_\theta)\|_2^2 \right].
+$$
+
+From above, we could observe that the variance is dependent on two factors:
+
+1. The stochastic policy score $S(\tau)$.
+2. Stochastic cumulative rewards.
+
+## REINFORCE: Reward-to-go
+
+Recall the reward term in Eq. (1), for each action $a_t$, it has to multiply the whole reward sequence from $t=1$ to $H$. However, the action at time $t$ should only affect rewards from $t$ onward. If we could remove the reward before $t$, without paying the price for estimation of the expectation, we could reduce the variance.
+
+**Proposition 2** $\forall t: \mathbb{E}_\pi \left[ \left( \nabla_\theta\log\pi_\theta(a_t\mid s_t) \right) \left( \sum_{t^\prime=1}^{t-1}\gamma^{t^\prime-1}r_{t^\prime} \right) \right] = 0$
+Proof:
+
+$$
+\begin{align}
+&\mathbb{E}_\pi \left[
+    \nabla_\theta \log \pi_\theta(a_t \mid s_t)
+    \left(\sum_{t'=1}^{t-1}\gamma^{t'-1}r_{t'}\right)
+\right] \notag\\[6pt]
+&= \mathbb{E}_\pi \left[
+    \mathbb{E}_{a_t}\left[
+        \nabla_\theta \log \pi_\theta(a_t \mid s_t)
+        \left(\sum_{t'=1}^{t-1}\gamma^{t'-1}r_{t'}\right)
+        \;\middle|\;
+        s_1,a_1,r_1,\ldots,a_{t-1},r_{t-1},s_t
+    \right]
+\right] \tag{Lemma 1}\\[6pt]
+&= \mathbb{E}_\pi \left[
+    \left(\sum_{t'=1}^{t-1}\gamma^{t'-1}r_{t'}\right)
+    \mathbb{E}_{a_t\sim\pi_\theta(\cdot\mid s_t)}
+    \left[
+        \nabla_\theta \log \pi_\theta(a_t\mid s_t)
+    \right]
+\right]. \tag{Lemma 3}
+\end{align}
+$$
+
+where
+
+$$
+\begin{align}
+\mathbb{E}_{a_t \sim \pi_\theta\left(\cdot \middle | s_t\right)}\left[\left( \nabla_\theta\log\pi_\theta(a_t\mid s_t) \right)\right] &= \sum_{a_t}\pi_\theta\left(a_t \middle | s_t\right) \nabla_\theta\log\pi_\theta\left(a_t\mid s_t\right) \\
+&= \sum_{a_t}\pi_\theta\left(a_t \middle | s_t\right) \frac{\nabla_\theta\pi_\theta\left(a_t\mid s_t\right)}{\pi_\theta\left(a_t \middle | s_t\right)} \tag{log-trick}\\
+&= \nabla_\theta\sum_{a_t}\pi_\theta\left(a_t \middle | s_t\right) \\
+&= \nabla_\theta 1 = 0.
+\end{align}
+$$
+
+Thus,
+
+$$
+\forall t: \mathbb{E}_\pi \left[ \left( \nabla_\theta\log\pi_\theta(a_t\mid s_t) \right) \left( \sum_{t^\prime=1}^{t-1}\gamma^{t^\prime-1}r_{t^\prime} \right) \right] = 0
+$$
+
+$$
+\tag*{$\blacksquare$}
+$$
+
+Split the reward in Eq. (1), we get
+
+$$
+
+\begin{align}
+\nabla_\theta J(\pi_\theta)
+&= \mathbb{E}_\pi \left[
+    \sum_{t=1}^{H}
+    \nabla_\theta \log \pi_\theta(a_t \mid s_t)
+    \left(\sum_{t'=1}^{H}\gamma^{t'-1}r_{t'}\right)
+\right] \notag\\[6pt]
+&= \sum_{t=1}^{H}\mathbb{E}_\pi \left[
+    \nabla_\theta \log \pi_\theta(a_t \mid s_t)
+    \left(
+        \sum_{t'=1}^{t-1}\gamma^{t'-1}r_{t'}
+        + \sum_{t'=t}^{H}\gamma^{t'-1}r_{t'}
+    \right)
+\right].
+\end{align}
+$$
+
+Given Proposition 2, we can now have the reward-to-go estimation
+
+$$
+\begin{align}
+\nabla_\theta J(\pi_\theta)
+&= \sum_{t=1}^{H}\mathbb{E}_\pi \left[
+    \nabla_\theta \log \pi_\theta(a_t \mid s_t)
+    \left(
+
+    \sum_{t'=t}^{H}\gamma^{t'-1}r_{t'}
+    \right)
+\right]. \tag{2}
+\end{align}
+$$
+
+Proposition 2 guarantees the unbiasedness of Eq. (2), removing the past scores often could also reduce the variance.
+
+## Baseline Function
+
+During the proof of Proposition 2, we know
+
+$$
+\mathbb{E}_{a_t \sim \pi_\theta\left(\cdot \middle | s_t\right)}\left[\left( \nabla_\theta\log\pi_\theta(a_t\mid s_t) \right)\right] =0.
+$$
+
+For any function $b(s_t)$ independent of $a_t$ given $s_t$, we have
+
+$$
+\mathbb{E}_{a_t \sim \pi_\theta\left(\cdot \middle | s_t\right)}\left[\left( \nabla_\theta\log\pi_\theta(a_t\mid s_t) \right)b(s_t)\right] =0.
+$$
+
+In practice, we call such a function, which only relates to the state, a baseline function.
+Since removing the baseline from the estimation also guarantees the unbiasedness, we can subtract the baseline to concentrate the numerics, thus possibly to further reduce the variance.
+
+## Actor-Critic
+
+Recall that $Q^\pi$ is defined as
+
+$$
+{ Q_t^\pi(s,a) = \mathbb E_\pi\left[ \sum_{t'=t}^{H}\gamma^{t'-t}r_{t'} \;\middle|\; s_t=s,\ a_t=a \right] }.
+$$
+
+Observing Eq. (2), we can use Lemma 1 again to separate $a_t,s_t$ as follows:
+
+$$
+ \begin{align}
+ \nabla_\theta J(\pi_\theta)
+ &= \sum_{t=1}^{H} \mathbb E_\pi\left[ \nabla_\theta\log\pi_\theta(a_t\mid s_t) \sum_{t'=t}^{H}\gamma^{t'-1}r_{t'} \right] \\[6pt]
+  &= \sum_{t=1}^{H}\mathbb E_{s_t,a_t}\Bigg[ \mathbb E_\pi\Bigg[ \nabla_\theta\log\pi_\theta(a_t\mid s_t) \sum_{t'=t}^{H}\gamma^{t'-1}r_{t'} \;\Bigg|\;s_t,a_t \Bigg]\Bigg] \tag{lemma 1}\\
+ &= \sum_{t=1}^{H}\mathbb E_{s_t,a_t}\left[ \nabla_\theta\log\pi_\theta(a_t\mid s_t) \mathbb E_\pi\left[ \sum_{t'=t}^{H}\gamma^{t'-1}r_{t'} \;\middle|\;s_t,a_t \right]\right].
+ \tag{lemma 3}
+ \\
+ &=  \sum_{t=1}^{H}\mathbb E_\pi\left[ \gamma^{t-1} \nabla_\theta\log\pi_\theta(a_t\mid s_t) Q_t^{\pi_\theta}(s_t,a_t) \right] \\
+ &= \sum_{t=1}^{H}\mathbb E_\pi\left[ \gamma^{t-1} \nabla_\theta\log\pi_\theta(a_t\mid s_t) \left(Q_t^{\pi_\theta}(s_t,a_t)-b(s_t)\right) \right]. \tag{baseline function}
+ \end{align}
+$$
+
+If we learn a value function for $b(s_t)$, define the advantage function
+
+$$
+A^\pi(s_t,a_t) = Q_t^{\pi_\theta}(s_t,a_t)-V^\pi(s_t).
+$$
+
+Thus, we have
+
+$$
+\begin{align}
+\nabla_\theta J(\pi_\theta)
+  &= \sum_{t=1}^{H}\mathbb E_\pi\left[ \gamma^{t-1} \nabla_\theta\log\pi_\theta(a_t\mid s_t) A^\pi(s_t,a_t) \right] \\
+  &\simeq \sum_{t=1}^{H}\mathbb E_\pi\left[ \nabla_\theta\log\pi_\theta(a_t\mid s_t) A^\pi(s_t,a_t) \right].
+\end{align}
+$$
+
+In practice we often omit the $\gamma^{t-1}$ as it gives less and less weight to later steps over a long horizon.
