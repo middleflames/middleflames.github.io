@@ -28,14 +28,14 @@ $$
 Proof:
 
 $$
-\begin{align}
+\begin{aligned}
 \mathbb{E}[\mathbb{E}[A|B]] &= \int_B P(B)\int_A a \cdot P(A|B) \\
 &= \int_B\int_A a\cdot P(A|B) P(B) \\
 &= \int_B \int_A a \cdot P(A,B) \\
 &= \int_Aa\int_B P(A,B) \\
 &= \int_Aa\cdot P(A) \\
 &= \mathbb{E}[A].
-\end{align}
+\end{aligned}
 $$
 
 $$
@@ -121,11 +121,11 @@ Recall the reward term in Eq. (1), for each action $a_t$, it has to multiply the
 Proof:
 
 $$
-\begin{align}
+\begin{aligned}
 &\mathbb{E}_\pi \left[
     \nabla_\theta \log \pi_\theta(a_t \mid s_t)
     \left(\sum_{t'=1}^{t-1}\gamma^{t'-1}r_{t'}\right)
-\right] \notag\\[6pt]
+\right]\\[6pt]
 &= \mathbb{E}_\pi \left[
     \mathbb{E}_{a_t}\left[
         \nabla_\theta \log \pi_\theta(a_t \mid s_t)
@@ -133,26 +133,26 @@ $$
         \;\middle|\;
         s_1,a_1,r_1,\ldots,a_{t-1},r_{t-1},s_t
     \right]
-\right] \tag{Lemma 1}\\[6pt]
+\right] \quad\text{(Lemma 1)}\\[6pt]
 &= \mathbb{E}_\pi \left[
     \left(\sum_{t'=1}^{t-1}\gamma^{t'-1}r_{t'}\right)
     \mathbb{E}_{a_t\sim\pi_\theta(\cdot\mid s_t)}
     \left[
         \nabla_\theta \log \pi_\theta(a_t\mid s_t)
     \right]
-\right]. \tag{Lemma 3}
-\end{align}
+\right]. \quad\text{(Lemma 3)}
+\end{aligned}
 $$
 
 where
 
 $$
-\begin{align}
+\begin{aligned}
 \mathbb{E}_{a_t \sim \pi_\theta\left(\cdot \middle | s_t\right)}\left[\left( \nabla_\theta\log\pi_\theta(a_t\mid s_t) \right)\right] &= \sum_{a_t}\pi_\theta\left(a_t \middle | s_t\right) \nabla_\theta\log\pi_\theta\left(a_t\mid s_t\right) \\
-&= \sum_{a_t}\pi_\theta\left(a_t \middle | s_t\right) \frac{\nabla_\theta\pi_\theta\left(a_t\mid s_t\right)}{\pi_\theta\left(a_t \middle | s_t\right)} \tag{log-trick}\\
+&= \sum_{a_t}\pi_\theta\left(a_t \middle | s_t\right) \frac{\nabla_\theta\pi_\theta\left(a_t\mid s_t\right)}{\pi_\theta\left(a_t \middle | s_t\right)} \quad\text{(log-trick)}\\
 &= \nabla_\theta\sum_{a_t}\pi_\theta\left(a_t \middle | s_t\right) \\
 &= \nabla_\theta 1 = 0.
-\end{align}
+\end{aligned}
 $$
 
 Thus,
@@ -169,13 +169,13 @@ Split the reward in Eq. (1), we get
 
 $$
 
-\begin{align}
+\begin{aligned}
 \nabla_\theta J(\pi_\theta)
 &= \mathbb{E}_\pi \left[
     \sum_{t=1}^{H}
     \nabla_\theta \log \pi_\theta(a_t \mid s_t)
     \left(\sum_{t'=1}^{H}\gamma^{t'-1}r_{t'}\right)
-\right] \notag\\[6pt]
+\right]\\[6pt]
 &= \sum_{t=1}^{H}\mathbb{E}_\pi \left[
     \nabla_\theta \log \pi_\theta(a_t \mid s_t)
     \left(
@@ -183,13 +183,13 @@ $$
         + \sum_{t'=t}^{H}\gamma^{t'-1}r_{t'}
     \right)
 \right].
-\end{align}
+\end{aligned}
 $$
 
 Given Proposition 2, we can now have the reward-to-go estimation
 
 $$
-\begin{align}
+\begin{aligned}
 \nabla_\theta J(\pi_\theta)
 &= \sum_{t=1}^{H}\mathbb{E}_\pi \left[
     \nabla_\theta \log \pi_\theta(a_t \mid s_t)
@@ -197,8 +197,9 @@ $$
 
     \sum_{t'=t}^{H}\gamma^{t'-1}r_{t'}
     \right)
-\right]. \tag{2}
-\end{align}
+\right].
+\end{aligned}
+\tag{2}
 $$
 
 Proposition 2 guarantees the unbiasedness of Eq. (2), removing the past scores often could also reduce the variance.
@@ -231,16 +232,14 @@ $$
 Observing Eq. (2), we can use Lemma 1 again to separate $a_t,s_t$ as follows:
 
 $$
- \begin{align}
+ \begin{aligned}
  \nabla_\theta J(\pi_\theta)
  &= \sum_{t=1}^{H} \mathbb E_\pi\left[ \nabla_\theta\log\pi_\theta(a_t\mid s_t) \sum_{t'=t}^{H}\gamma^{t'-1}r_{t'} \right] \\[6pt]
-  &= \sum_{t=1}^{H}\mathbb E_{s_t,a_t}\Bigg[ \mathbb E_\pi\Bigg[ \nabla_\theta\log\pi_\theta(a_t\mid s_t) \sum_{t'=t}^{H}\gamma^{t'-1}r_{t'} \;\Bigg|\;s_t,a_t \Bigg]\Bigg] \tag{lemma 1}\\
- &= \sum_{t=1}^{H}\mathbb E_{s_t,a_t}\left[ \nabla_\theta\log\pi_\theta(a_t\mid s_t) \mathbb E_\pi\left[ \sum_{t'=t}^{H}\gamma^{t'-1}r_{t'} \;\middle|\;s_t,a_t \right]\right].
- \tag{lemma 3}
- \\
+  &= \sum_{t=1}^{H}\mathbb E_{s_t,a_t}\Bigg[ \mathbb E_\pi\Bigg[ \nabla_\theta\log\pi_\theta(a_t\mid s_t) \sum_{t'=t}^{H}\gamma^{t'-1}r_{t'} \;\Bigg|\;s_t,a_t \Bigg]\Bigg] \quad\text{(lemma 1)}\\
+ &= \sum_{t=1}^{H}\mathbb E_{s_t,a_t}\left[ \nabla_\theta\log\pi_\theta(a_t\mid s_t) \mathbb E_\pi\left[ \sum_{t'=t}^{H}\gamma^{t'-1}r_{t'} \;\middle|\;s_t,a_t \right]\right]. \quad\text{(lemma 3)}\\
  &=  \sum_{t=1}^{H}\mathbb E_\pi\left[ \gamma^{t-1} \nabla_\theta\log\pi_\theta(a_t\mid s_t) Q_t^{\pi_\theta}(s_t,a_t) \right] \\
- &= \sum_{t=1}^{H}\mathbb E_\pi\left[ \gamma^{t-1} \nabla_\theta\log\pi_\theta(a_t\mid s_t) \left(Q_t^{\pi_\theta}(s_t,a_t)-b(s_t)\right) \right]. \tag{baseline function}
- \end{align}
+ &= \sum_{t=1}^{H}\mathbb E_\pi\left[ \gamma^{t-1} \nabla_\theta\log\pi_\theta(a_t\mid s_t) \left(Q_t^{\pi_\theta}(s_t,a_t)-b(s_t)\right) \right]. \quad\text{(baseline function)}
+ \end{aligned}
 $$
 
 If we learn a value function for $b(s_t)$, define the advantage function
@@ -252,11 +251,11 @@ $$
 Thus, we have
 
 $$
-\begin{align}
+\begin{aligned}
 \nabla_\theta J(\pi_\theta)
   &= \sum_{t=1}^{H}\mathbb E_\pi\left[ \gamma^{t-1} \nabla_\theta\log\pi_\theta(a_t\mid s_t) A^\pi(s_t,a_t) \right] \\
   &\simeq \sum_{t=1}^{H}\mathbb E_\pi\left[ \nabla_\theta\log\pi_\theta(a_t\mid s_t) A^\pi(s_t,a_t) \right].
-\end{align}
+\end{aligned}
 $$
 
 In practice we often omit the $\gamma^{t-1}$ as it gives less and less weight to later steps over a long horizon.
